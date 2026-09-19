@@ -6,114 +6,250 @@
 <title>新人教育チェック</title>
 <style>
   :root {
-    --bg: #f5f6f8;
+    --bg: #f2f3f7;
     --card-bg: #ffffff;
-    --text: #1c1c1e;
-    --sub: #6b7280;
-    --border: #e5e7eb;
-    --accent: #2563eb;
-    --mi: #9ca3af;      /* 未 */
-    --sankaku: #f59e0b; /* △ */
-    --maru: #3b82f6;    /* 〇 */
-    --nijyu: #16a34a;   /* ◎ */
+    --text: #1a1d29;
+    --sub: #8a8f9c;
+    --border: #ecedf2;
+    --accent: #4f6df5;
+    --accent-soft: #eef1ff;
+    --mi: #c1c5cf;      /* 未 */
+    --sankaku: #ffb020;  /* △ */
+    --maru: #4f6df5;    /* 〇 */
+    --nijyu: #22c55e;   /* ◎ */
+    --shadow: 0 1px 2px rgba(20,20,43,.04), 0 4px 16px rgba(20,20,43,.05);
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { overscroll-behavior-y: contain; }
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
     background: var(--bg);
     color: var(--text);
-    padding-bottom: 40px;
+    padding-bottom: 48px;
+    -webkit-font-smoothing: antialiased;
   }
+
+  /* ===== ヘッダー ===== */
   header {
     position: sticky;
     top: 0;
     z-index: 10;
-    background: var(--card-bg);
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--border);
-    padding: 12px 16px;
+    padding: 14px 16px 12px;
   }
   header h1 {
-    font-size: 17px;
-    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 12px;
     text-align: center;
+    letter-spacing: .01em;
   }
   .member-select {
     display: flex;
     gap: 8px;
     align-items: center;
   }
-  select {
+  .select-wrap {
+    position: relative;
     flex: 1;
-    padding: 10px 12px;
-    font-size: 16px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: #fff;
-    color: var(--text);
+  }
+  .select-wrap::after {
+    content: '';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid var(--sub);
+    border-bottom: 2px solid var(--sub);
+    transform: translateY(-70%) rotate(45deg);
+    pointer-events: none;
+  }
+  select {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 12px 36px 12px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent-soft);
+    color: var(--accent);
   }
   .refresh-btn {
-    padding: 10px 14px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: #fff;
-    font-size: 14px;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+  .refresh-btn:active { transform: scale(.92); }
+
   .member-info {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px 14px;
+    gap: 4px 16px;
     font-size: 12px;
     color: var(--sub);
-    margin-top: 8px;
+    margin-top: 10px;
     padding: 0 2px;
   }
-  .progress-wrap {
-    margin: 12px 16px 4px;
+  .member-info b { color: var(--text); font-weight: 600; }
+
+  /* ===== 進捗バー ===== */
+  .progress-card {
+    margin: 14px 16px 0;
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    display: none;
   }
+  .progress-top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .progress-top .ptitle {
+    font-size: 12.5px;
+    color: var(--sub);
+    font-weight: 600;
+  }
+  .progress-top .pvalue {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .progress-top .pvalue small { font-size: 13px; font-weight: 700; }
   .progress-bar-bg {
     width: 100%;
-    height: 10px;
-    border-radius: 6px;
-    background: var(--border);
+    height: 22px;
+    border-radius: 11px;
+    background: #eef0f5;
     overflow: hidden;
+    position: relative;
   }
   .progress-bar-fg {
     height: 100%;
-    background: var(--accent);
-    transition: width .3s ease;
+    border-radius: 11px;
+    background: linear-gradient(90deg, #6d8bff, var(--accent));
+    transition: width .35s cubic-bezier(.4,0,.2,1);
   }
-  .progress-label {
-    font-size: 12px;
+
+  /* ===== 凡例 ===== */
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 11.5px;
     color: var(--sub);
-    margin-top: 4px;
-    text-align: right;
+    margin: 12px 16px 0;
+    flex-wrap: wrap;
   }
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .legend .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
   main {
-    padding: 8px 16px 16px;
+    padding: 6px 16px 16px;
   }
+
+  /* ===== カテゴリ（アコーディオン） ===== */
   .category {
-    margin-top: 18px;
-  }
-  .category h2 {
-    font-size: 14px;
-    color: var(--sub);
-    margin: 0 0 8px 4px;
-    font-weight: 600;
-  }
-  .item-card {
+    margin-top: 12px;
     background: var(--card-bg);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .category-header .cat-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+  .category-header h2 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cat-progress-pill {
+    flex-shrink: 0;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--sub);
+    background: #f4f5f8;
+    padding: 3px 9px;
+    border-radius: 20px;
+  }
+  .cat-progress-pill.done { color: #16a34a; background: #eafcf1; }
+  .chevron {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sub);
+    transition: transform .25s ease;
+  }
+  .category.open .chevron { transform: rotate(180deg); }
+  .category-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .3s ease;
+  }
+  .category.open .category-body {
+    /* max-heightはJSで実測値をセット */
+  }
+  .category-body-inner {
+    padding: 0 12px 10px;
+  }
+
+  .item-card {
+    background: #fafbfd;
     border-radius: 12px;
-    border: 1px solid var(--border);
-    padding: 12px 14px;
+    padding: 11px 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .item-name {
-    font-size: 15px;
+    font-size: 14.5px;
+    font-weight: 500;
     flex: 1;
     display: flex;
     align-items: center;
@@ -125,19 +261,26 @@
   }
   .photo-btn {
     border: none;
-    background: none;
-    font-size: 16px;
-    padding: 2px 4px;
-    line-height: 1;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-  .status-btn {
-    min-width: 52px;
-    height: 36px;
-    border-radius: 18px;
-    border: none;
+    background: #fff;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
     font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(20,20,43,.08);
+  }
+  .photo-btn:active { transform: scale(.9); }
+
+  .status-btn {
+    min-width: 54px;
+    height: 34px;
+    padding: 0 6px;
+    border-radius: 17px;
+    border: none;
+    font-size: 14.5px;
     font-weight: 700;
     color: #fff;
     display: flex;
@@ -145,12 +288,11 @@
     justify-content: center;
     flex-shrink: 0;
   }
-  .status-未 { background: var(--mi); }
+  .status-btn:active { transform: scale(.94); }
+  .status-未 { background: var(--mi); color: #6b7280; }
   .status-△ { background: var(--sankaku); }
   .status-〇 { background: var(--maru); }
   .status-◎ { background: var(--nijyu); }
-
-  .status-btn.updating { opacity: .5; }
 
   .empty, .loading, .error {
     text-align: center;
@@ -160,31 +302,87 @@
   }
   .error { color: #dc2626; }
 
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    font-size: 11px;
-    color: var(--sub);
-    margin: 4px 16px 0;
+  /* ===== ステータス選択シート ===== */
+  .sheet-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,17,26,.45);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 100;
   }
-  .legend span {
-    display: inline-flex;
+  .sheet-overlay.open { display: flex; }
+  .sheet-box {
+    background: #fff;
+    width: 100%;
+    max-width: 480px;
+    border-radius: 20px 20px 0 0;
+    padding: 10px 18px calc(20px + env(safe-area-inset-bottom));
+    animation: sheetUp .22s ease;
+  }
+  @keyframes sheetUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .sheet-handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 3px;
+    background: #e2e4ea;
+    margin: 6px auto 14px;
+  }
+  .sheet-title {
+    font-size: 13px;
+    color: var(--sub);
+    text-align: center;
+    margin-bottom: 14px;
+    font-weight: 600;
+  }
+  .sheet-options {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .sheet-opt {
+    border: none;
+    border-radius: 14px;
+    padding: 16px 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 4px;
   }
-  .legend .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
+  .sheet-opt small {
+    font-size: 10.5px;
+    font-weight: 600;
+    opacity: .9;
+  }
+  .sheet-opt.opt-未 { background: var(--mi); color: #6b7280; }
+  .sheet-opt.opt-△ { background: var(--sankaku); }
+  .sheet-opt.opt-〇 { background: var(--maru); }
+  .sheet-opt.opt-◎ { background: var(--nijyu); }
+  .sheet-opt:active { transform: scale(.95); }
+  .sheet-cancel {
+    width: 100%;
+    padding: 13px 0;
+    border-radius: 14px;
+    border: none;
+    background: #f4f5f8;
+    color: var(--sub);
+    font-size: 14px;
+    font-weight: 600;
   }
 
-  /* photo modal */
+  /* ===== 写真モーダル ===== */
   .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.6);
+    background: rgba(15,17,26,.6);
     display: none;
     align-items: center;
     justify-content: center;
@@ -194,7 +392,7 @@
   .modal-overlay.open { display: flex; }
   .modal-box {
     background: #fff;
-    border-radius: 14px;
+    border-radius: 18px;
     max-width: 100%;
     max-height: 90vh;
     overflow: auto;
@@ -204,36 +402,33 @@
   .modal-box img {
     max-width: 100%;
     max-height: 70vh;
-    border-radius: 8px;
-  }
-  .modal-box a {
-    display: block;
-    margin-top: 10px;
-    color: var(--accent);
-    font-size: 14px;
+    border-radius: 10px;
   }
   .modal-close {
     margin-top: 14px;
-    padding: 10px 20px;
-    border-radius: 10px;
+    padding: 10px 24px;
+    border-radius: 12px;
     border: none;
     background: var(--bg);
     font-size: 14px;
+    font-weight: 600;
   }
+
   .toast {
     position: fixed;
-    bottom: 20px;
+    bottom: 24px;
     left: 50%;
     transform: translateX(-50%);
-    background: #1c1c1e;
+    background: #1a1d29;
     color: #fff;
-    padding: 10px 18px;
-    border-radius: 20px;
+    padding: 11px 20px;
+    border-radius: 24px;
     font-size: 13px;
     opacity: 0;
     transition: opacity .25s;
     pointer-events: none;
     z-index: 200;
+    white-space: nowrap;
   }
   .toast.show { opacity: 1; }
 </style>
@@ -243,17 +438,22 @@
 <header>
   <h1>新人教育チェック</h1>
   <div class="member-select">
-    <select id="memberSelect">
-      <option value="">読み込み中...</option>
-    </select>
+    <div class="select-wrap">
+      <select id="memberSelect">
+        <option value="">読み込み中...</option>
+      </select>
+    </div>
     <button class="refresh-btn" id="refreshBtn">↻</button>
   </div>
   <div class="member-info" id="memberInfo"></div>
 </header>
 
-<div class="progress-wrap" id="progressWrap" style="display:none;">
+<div class="progress-card" id="progressWrap">
+  <div class="progress-top">
+    <span class="ptitle">教育進捗達成率</span>
+    <span class="pvalue" id="progressValue">0<small>%</small></span>
+  </div>
   <div class="progress-bar-bg"><div class="progress-bar-fg" id="progressBar" style="width:0%;"></div></div>
-  <div class="progress-label" id="progressLabel">進捗 0%</div>
 </div>
 
 <div class="legend">
@@ -261,13 +461,29 @@
   <span><span class="dot" style="background:var(--sankaku)"></span>△</span>
   <span><span class="dot" style="background:var(--maru)"></span>〇</span>
   <span><span class="dot" style="background:var(--nijyu)"></span>◎</span>
-  <span>タップで切り替え（未→△→〇→◎）</span>
+  <span>タップで評価を選択</span>
 </div>
 
 <main id="main">
   <div class="loading">メンバーを選択してください</div>
 </main>
 
+<!-- ステータス選択シート -->
+<div class="sheet-overlay" id="statusSheet">
+  <div class="sheet-box">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheetItemName">項目名</div>
+    <div class="sheet-options">
+      <button class="sheet-opt opt-未" data-status="未">未<small>未実施</small></button>
+      <button class="sheet-opt opt-△" data-status="△">△<small>口頭説明</small></button>
+      <button class="sheet-opt opt-〇" data-status="〇">〇<small>補助あり</small></button>
+      <button class="sheet-opt opt-◎" data-status="◎">◎<small>単独可</small></button>
+    </div>
+    <button class="sheet-cancel" id="sheetCancel">キャンセル</button>
+  </div>
+</div>
+
+<!-- 写真モーダル（画像のみ表示用。それ以外は自動で新規タブを開く） -->
 <div class="modal-overlay" id="photoModal">
   <div class="modal-box">
     <div id="photoModalBody"></div>
@@ -281,10 +497,11 @@
 // ==== 設定 ====
 // GASをウェブアプリとしてデプロイした後に発行されるURLをここに設定してください
 // 例: 'https://script.google.com/macros/s/AKfycb.../exec'
-const API_URL = 'https://script.google.com/macros/s/AKfycbz6CvxiJ-95VdR2KrSv53s0WcNDhQeceP2f7X7fCXPed2FQl1lGP_os7R2fV1LXDxpjGg/exec';
+const API_URL = 'GAS_WEB_APP_URL_HERE';
 
-const STATUS_CYCLE = ['未', '△', '〇', '◎'];
+const STATUS_LIST = ['未', '△', '〇', '◎'];
 const LAST_MEMBER_KEY = 'training_app_last_member';
+const OPEN_CATEGORIES_KEY = 'training_app_open_categories';
 
 const memberSelect = document.getElementById('memberSelect');
 const refreshBtn = document.getElementById('refreshBtn');
@@ -292,13 +509,28 @@ const mainEl = document.getElementById('main');
 const memberInfo = document.getElementById('memberInfo');
 const progressWrap = document.getElementById('progressWrap');
 const progressBar = document.getElementById('progressBar');
-const progressLabel = document.getElementById('progressLabel');
+const progressValue = document.getElementById('progressValue');
 const photoModal = document.getElementById('photoModal');
 const photoModalBody = document.getElementById('photoModalBody');
 const photoModalClose = document.getElementById('photoModalClose');
+const statusSheet = document.getElementById('statusSheet');
+const sheetItemName = document.getElementById('sheetItemName');
+const sheetCancel = document.getElementById('sheetCancel');
 const toastEl = document.getElementById('toast');
 
 let currentMemberData = null;
+let openCategories = loadOpenCategories();
+let activeItemForSheet = null;
+let activeBtnForSheet = null;
+
+function loadOpenCategories() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(OPEN_CATEGORIES_KEY) || '[]'));
+  } catch (e) { return new Set(); }
+}
+function saveOpenCategories() {
+  try { localStorage.setItem(OPEN_CATEGORIES_KEY, JSON.stringify([...openCategories])); } catch (e) {}
+}
 
 function showToast(msg) {
   toastEl.textContent = msg;
@@ -368,16 +600,16 @@ function renderMember(data) {
   // ヘッダー情報
   const h = data.header || {};
   const infoParts = [];
-  if (h['氏名']) infoParts.push(`氏名: ${h['氏名']}`);
-  if (h['所属支店']) infoParts.push(`支店: ${h['所属支店']}`);
-  if (h['担当者']) infoParts.push(`担当: ${h['担当者']}`);
-  if (h['入社日']) infoParts.push(`入社日: ${h['入社日']}`);
-  memberInfo.innerHTML = infoParts.map(p => `<span>${escapeHtml(p)}</span>`).join('');
+  if (h['氏名']) infoParts.push(`氏名 <b>${escapeHtml(h['氏名'])}</b>`);
+  if (h['所属支店']) infoParts.push(`支店 <b>${escapeHtml(h['所属支店'])}</b>`);
+  if (h['担当者']) infoParts.push(`担当 <b>${escapeHtml(h['担当者'])}</b>`);
+  if (h['入社日']) infoParts.push(`入社日 <b>${escapeHtml(h['入社日'])}</b>`);
+  memberInfo.innerHTML = infoParts.map(p => `<span>${p}</span>`).join('');
 
   // 進捗
   progressWrap.style.display = 'block';
   progressBar.style.width = data.progress + '%';
-  progressLabel.textContent = `進捗 ${data.progress}%`;
+  progressValue.innerHTML = data.progress + '<small>%</small>';
 
   // 項目一覧（カテゴリごとにグルーピング）
   if (!data.items.length) {
@@ -397,13 +629,33 @@ function renderMember(data) {
 
   mainEl.innerHTML = '';
   order.forEach(cat => {
-    const section = document.createElement('div');
-    section.className = 'category';
-    const h2 = document.createElement('h2');
-    h2.textContent = cat;
-    section.appendChild(h2);
+    const items = byCategory[cat];
+    const doneCount = items.filter(it => it.status === '◎').length;
+    const isDone = doneCount === items.length;
 
-    byCategory[cat].forEach(item => {
+    const section = document.createElement('div');
+    section.className = 'category' + (openCategories.has(cat) ? ' open' : '');
+    section.dataset.category = cat;
+
+    const headerEl = document.createElement('div');
+    headerEl.className = 'category-header';
+    headerEl.innerHTML = `
+      <div class="cat-left">
+        <h2>${escapeHtml(cat)}</h2>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <span class="cat-progress-pill${isDone ? ' done' : ''}">${doneCount}/${items.length}</span>
+        <span class="chevron">▾</span>
+      </div>
+    `;
+    headerEl.addEventListener('click', () => toggleCategory(section));
+
+    const bodyEl = document.createElement('div');
+    bodyEl.className = 'category-body';
+    const bodyInner = document.createElement('div');
+    bodyInner.className = 'category-body-inner';
+
+    items.forEach(item => {
       const card = document.createElement('div');
       card.className = 'item-card';
 
@@ -418,33 +670,83 @@ function renderMember(data) {
         const photoBtn = document.createElement('button');
         photoBtn.className = 'photo-btn';
         photoBtn.textContent = '📷';
-        photoBtn.addEventListener('click', () => openPhoto(item));
+        photoBtn.addEventListener('click', (e) => { e.stopPropagation(); openPhoto(item); });
         nameEl.appendChild(photoBtn);
       }
 
       const statusBtn = document.createElement('button');
       statusBtn.className = 'status-btn status-' + item.status;
       statusBtn.textContent = item.status;
-      statusBtn.addEventListener('click', () => cycleStatus(item, statusBtn));
+      statusBtn.addEventListener('click', (e) => { e.stopPropagation(); openStatusSheet(item, statusBtn); });
 
       card.appendChild(nameEl);
       card.appendChild(statusBtn);
-      section.appendChild(card);
+      bodyInner.appendChild(card);
     });
 
+    bodyEl.appendChild(bodyInner);
+    section.appendChild(headerEl);
+    section.appendChild(bodyEl);
     mainEl.appendChild(section);
+
+    if (openCategories.has(cat)) {
+      requestAnimationFrame(() => { bodyEl.style.maxHeight = bodyEl.scrollHeight + 'px'; });
+    }
   });
 }
 
-async function cycleStatus(item, btn) {
-  const currentIdx = STATUS_CYCLE.indexOf(item.status);
-  const nextStatus = STATUS_CYCLE[(currentIdx + 1) % STATUS_CYCLE.length];
+function toggleCategory(section) {
+  const cat = section.dataset.category;
+  const body = section.querySelector('.category-body');
+  const isOpen = section.classList.contains('open');
+  if (isOpen) {
+    body.style.maxHeight = body.scrollHeight + 'px'; // 現在値をセットしてからアニメーション開始
+    requestAnimationFrame(() => { body.style.maxHeight = '0px'; });
+    section.classList.remove('open');
+    openCategories.delete(cat);
+  } else {
+    section.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+    openCategories.add(cat);
+    body.addEventListener('transitionend', function handler() {
+      if (section.classList.contains('open')) body.style.maxHeight = 'none';
+      body.removeEventListener('transitionend', handler);
+    });
+  }
+  saveOpenCategories();
+}
+
+// ===== ステータス選択シート =====
+function openStatusSheet(item, btn) {
+  activeItemForSheet = item;
+  activeBtnForSheet = btn;
+  sheetItemName.textContent = item.name;
+  statusSheet.classList.add('open');
+}
+function closeStatusSheet() {
+  statusSheet.classList.remove('open');
+  activeItemForSheet = null;
+  activeBtnForSheet = null;
+}
+statusSheet.querySelectorAll('.sheet-opt').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const status = btn.dataset.status;
+    if (activeItemForSheet) applyStatus(activeItemForSheet, activeBtnForSheet, status);
+    closeStatusSheet();
+  });
+});
+sheetCancel.addEventListener('click', closeStatusSheet);
+statusSheet.addEventListener('click', (e) => { if (e.target === statusSheet) closeStatusSheet(); });
+
+async function applyStatus(item, btn, nextStatus) {
+  if (item.status === nextStatus) return;
   const prevStatus = item.status;
 
   // 楽観的UI更新
   item.status = nextStatus;
   btn.textContent = nextStatus;
-  btn.className = 'status-btn status-' + nextStatus + ' updating';
+  btn.className = 'status-btn status-' + nextStatus;
+  updateCategoryPill(item.category);
 
   try {
     await apiPost({
@@ -454,17 +756,26 @@ async function cycleStatus(item, btn) {
       col: item.statusCol,
       value: nextStatus
     });
-    btn.classList.remove('updating');
     currentMemberData.progress = recomputeProgress(currentMemberData.items);
     progressBar.style.width = currentMemberData.progress + '%';
-    progressLabel.textContent = `進捗 ${currentMemberData.progress}%`;
+    progressValue.innerHTML = currentMemberData.progress + '<small>%</small>';
   } catch (e) {
-    // 失敗時はロールバック
     item.status = prevStatus;
     btn.textContent = prevStatus;
     btn.className = 'status-btn status-' + prevStatus;
+    updateCategoryPill(item.category);
     showToast('更新に失敗しました');
   }
+}
+
+function updateCategoryPill(cat) {
+  const section = mainEl.querySelector(`.category[data-category="${CSS.escape(cat)}"]`);
+  if (!section) return;
+  const items = currentMemberData.items.filter(it => it.category === cat);
+  const doneCount = items.filter(it => it.status === '◎').length;
+  const pill = section.querySelector('.cat-progress-pill');
+  pill.textContent = `${doneCount}/${items.length}`;
+  pill.classList.toggle('done', doneCount === items.length);
 }
 
 function recomputeProgress(items) {
@@ -474,9 +785,8 @@ function recomputeProgress(items) {
   return Math.round((total / items.length) * 100);
 }
 
+// ===== 写真 =====
 async function openPhoto(item) {
-  photoModalBody.innerHTML = '<div class="loading">読み込み中...</div>';
-  photoModal.classList.add('open');
   try {
     const { url } = await apiGet({
       action: 'getPhoto',
@@ -485,19 +795,20 @@ async function openPhoto(item) {
       col: item.photoCol
     });
     if (!url) {
-      photoModalBody.innerHTML = `<div class="empty">「${escapeHtml(item.name)}」の参考写真は登録されていません</div>`;
+      showToast('参考写真は登録されていません');
       return;
     }
     if (/\.(png|jpe?g|gif|webp)(\?|$)/i.test(url)) {
       photoModalBody.innerHTML = `<img src="${escapeAttr(url)}" alt="${escapeAttr(item.name)}">`;
+      photoModal.classList.add('open');
     } else {
-      photoModalBody.innerHTML = `<div>「${escapeHtml(item.name)}」の参考資料</div><a href="${escapeAttr(url)}" target="_blank" rel="noopener">資料を開く ↗</a>`;
+      // 画像以外（PDF・外部ページ等）はワンタップで直接新しいタブへ
+      window.open(url, '_blank', 'noopener');
     }
   } catch (e) {
-    photoModalBody.innerHTML = `<div class="error">取得に失敗しました</div>`;
+    showToast('取得に失敗しました');
   }
 }
-
 photoModalClose.addEventListener('click', () => photoModal.classList.remove('open'));
 photoModal.addEventListener('click', (e) => { if (e.target === photoModal) photoModal.classList.remove('open'); });
 
