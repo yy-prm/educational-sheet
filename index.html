@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>新人教育チェック</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --card-bg: #ffffff;
+    --text: #1c1c1e;
+    --sub: #6b7280;
+    --border: #e5e7eb;
+    --accent: #2563eb;
+    --mi: #9ca3af;      /* 未 */
+    --sankaku: #f59e0b; /* △ */
+    --maru: #3b82f6;    /* 〇 */
+    --nijyu: #16a34a;   /* ◎ */
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding-bottom: 40px;
+  }
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+  }
+  header h1 {
+    font-size: 17px;
+    margin: 0 0 8px;
+    text-align: center;
+  }
+  .member-select {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  select {
+    flex: 1;
+    padding: 10px 12px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+  }
+  .refresh-btn {
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #fff;
+    font-size: 14px;
+  }
+  .member-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    font-size: 12px;
+    color: var(--sub);
+    margin-top: 8px;
+    padding: 0 2px;
+  }
+  .progress-wrap {
+    margin: 12px 16px 4px;
+  }
+  .progress-bar-bg {
+    width: 100%;
+    height: 10px;
+    border-radius: 6px;
+    background: var(--border);
+    overflow: hidden;
+  }
+  .progress-bar-fg {
+    height: 100%;
+    background: var(--accent);
+    transition: width .3s ease;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--sub);
+    margin-top: 4px;
+    text-align: right;
+  }
+  main {
+    padding: 8px 16px 16px;
+  }
+  .category {
+    margin-top: 18px;
+  }
+  .category h2 {
+    font-size: 14px;
+    color: var(--sub);
+    margin: 0 0 8px 4px;
+    font-weight: 600;
+  }
+  .item-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .item-name {
+    font-size: 15px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .item-name span.label {
+    overflow-wrap: anywhere;
+  }
+  .photo-btn {
+    border: none;
+    background: none;
+    font-size: 16px;
+    padding: 2px 4px;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .status-btn {
+    min-width: 52px;
+    height: 36px;
+    border-radius: 18px;
+    border: none;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .status-未 { background: var(--mi); }
+  .status-△ { background: var(--sankaku); }
+  .status-〇 { background: var(--maru); }
+  .status-◎ { background: var(--nijyu); }
+
+  .status-btn.updating { opacity: .5; }
+
+  .empty, .loading, .error {
+    text-align: center;
+    color: var(--sub);
+    padding: 40px 20px;
+    font-size: 14px;
+  }
+  .error { color: #dc2626; }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--sub);
+    margin: 4px 16px 0;
+  }
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .legend .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* photo modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: #fff;
+    border-radius: 14px;
+    max-width: 100%;
+    max-height: 90vh;
+    overflow: auto;
+    padding: 16px;
+    text-align: center;
+  }
+  .modal-box img {
+    max-width: 100%;
+    max-height: 70vh;
+    border-radius: 8px;
+  }
+  .modal-box a {
+    display: block;
+    margin-top: 10px;
+    color: var(--accent);
+    font-size: 14px;
+  }
+  .modal-close {
+    margin-top: 14px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    background: var(--bg);
+    font-size: 14px;
+  }
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1c1c1e;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity .25s;
+    pointer-events: none;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>新人教育チェック</h1>
+  <div class="member-select">
+    <select id="memberSelect">
+      <option value="">読み込み中...</option>
+    </select>
+    <button class="refresh-btn" id="refreshBtn">↻</button>
+  </div>
+  <div class="member-info" id="memberInfo"></div>
+</header>
+
+<div class="progress-wrap" id="progressWrap" style="display:none;">
+  <div class="progress-bar-bg"><div class="progress-bar-fg" id="progressBar" style="width:0%;"></div></div>
+  <div class="progress-label" id="progressLabel">進捗 0%</div>
+</div>
+
+<div class="legend">
+  <span><span class="dot" style="background:var(--mi)"></span>未</span>
+  <span><span class="dot" style="background:var(--sankaku)"></span>△</span>
+  <span><span class="dot" style="background:var(--maru)"></span>〇</span>
+  <span><span class="dot" style="background:var(--nijyu)"></span>◎</span>
+  <span>タップで切り替え（未→△→〇→◎）</span>
+</div>
+
+<main id="main">
+  <div class="loading">メンバーを選択してください</div>
+</main>
+
+<div class="modal-overlay" id="photoModal">
+  <div class="modal-box">
+    <div id="photoModalBody"></div>
+    <button class="modal-close" id="photoModalClose">閉じる</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==== 設定 ====
+// GASをウェブアプリとしてデプロイした後に発行されるURLをここに設定してください
+// 例: 'https://script.google.com/macros/s/AKfycb.../exec'
+const API_URL = 'https://script.google.com/macros/s/AKfycbz6CvxiJ-95VdR2KrSv53s0WcNDhQeceP2f7X7fCXPed2FQl1lGP_os7R2fV1LXDxpjGg/exec';
+
+const STATUS_CYCLE = ['未', '△', '〇', '◎'];
+const LAST_MEMBER_KEY = 'training_app_last_member';
+
+const memberSelect = document.getElementById('memberSelect');
+const refreshBtn = document.getElementById('refreshBtn');
+const mainEl = document.getElementById('main');
+const memberInfo = document.getElementById('memberInfo');
+const progressWrap = document.getElementById('progressWrap');
+const progressBar = document.getElementById('progressBar');
+const progressLabel = document.getElementById('progressLabel');
+const photoModal = document.getElementById('photoModal');
+const photoModalBody = document.getElementById('photoModalBody');
+const photoModalClose = document.getElementById('photoModalClose');
+const toastEl = document.getElementById('toast');
+
+let currentMemberData = null;
+
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 1800);
+}
+
+async function apiGet(params) {
+  const url = new URL(API_URL);
+  Object.keys(params).forEach(k => url.searchParams.set(k, params[k]));
+  const res = await fetch(url.toString());
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'unknown error');
+  return json;
+}
+
+async function apiPost(body) {
+  const res = await fetch(API_URL, {
+    method: 'POST',
+    body: JSON.stringify(body)
+  });
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error || 'unknown error');
+  return json;
+}
+
+async function loadMembers() {
+  try {
+    const { members } = await apiGet({ action: 'listMembers' });
+    memberSelect.innerHTML = '';
+    if (!members.length) {
+      memberSelect.innerHTML = '<option value="">メンバーが見つかりません</option>';
+      return;
+    }
+    members.forEach(name => {
+      const opt = document.createElement('option');
+      opt.value = name;
+      opt.textContent = name;
+      memberSelect.appendChild(opt);
+    });
+    const last = localStorage.getItem(LAST_MEMBER_KEY);
+    if (last && members.includes(last)) {
+      memberSelect.value = last;
+    }
+    loadMember(memberSelect.value);
+  } catch (e) {
+    mainEl.innerHTML = `<div class="error">メンバー一覧の取得に失敗しました: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+async function loadMember(name) {
+  if (!name) return;
+  mainEl.innerHTML = '<div class="loading">読み込み中...</div>';
+  progressWrap.style.display = 'none';
+  memberInfo.innerHTML = '';
+  try {
+    const { data } = await apiGet({ action: 'getMember', name });
+    currentMemberData = data;
+    try { localStorage.setItem(LAST_MEMBER_KEY, name); } catch (e) {}
+    renderMember(data);
+  } catch (e) {
+    mainEl.innerHTML = `<div class="error">読み込みに失敗しました: ${escapeHtml(e.message)}</div>`;
+  }
+}
+
+function renderMember(data) {
+  // ヘッダー情報
+  const h = data.header || {};
+  const infoParts = [];
+  if (h['氏名']) infoParts.push(`氏名: ${h['氏名']}`);
+  if (h['所属支店']) infoParts.push(`支店: ${h['所属支店']}`);
+  if (h['担当者']) infoParts.push(`担当: ${h['担当者']}`);
+  if (h['入社日']) infoParts.push(`入社日: ${h['入社日']}`);
+  memberInfo.innerHTML = infoParts.map(p => `<span>${escapeHtml(p)}</span>`).join('');
+
+  // 進捗
+  progressWrap.style.display = 'block';
+  progressBar.style.width = data.progress + '%';
+  progressLabel.textContent = `進捗 ${data.progress}%`;
+
+  // 項目一覧（カテゴリごとにグルーピング）
+  if (!data.items.length) {
+    mainEl.innerHTML = '<div class="empty">項目が見つかりませんでした</div>';
+    return;
+  }
+
+  const byCategory = {};
+  const order = [];
+  data.items.forEach(item => {
+    if (!byCategory[item.category]) {
+      byCategory[item.category] = [];
+      order.push(item.category);
+    }
+    byCategory[item.category].push(item);
+  });
+
+  mainEl.innerHTML = '';
+  order.forEach(cat => {
+    const section = document.createElement('div');
+    section.className = 'category';
+    const h2 = document.createElement('h2');
+    h2.textContent = cat;
+    section.appendChild(h2);
+
+    byCategory[cat].forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'item-card';
+
+      const nameEl = document.createElement('div');
+      nameEl.className = 'item-name';
+      const labelSpan = document.createElement('span');
+      labelSpan.className = 'label';
+      labelSpan.textContent = item.name;
+      nameEl.appendChild(labelSpan);
+
+      if (item.photoRow && item.photoCol) {
+        const photoBtn = document.createElement('button');
+        photoBtn.className = 'photo-btn';
+        photoBtn.textContent = '📷';
+        photoBtn.addEventListener('click', () => openPhoto(item));
+        nameEl.appendChild(photoBtn);
+      }
+
+      const statusBtn = document.createElement('button');
+      statusBtn.className = 'status-btn status-' + item.status;
+      statusBtn.textContent = item.status;
+      statusBtn.addEventListener('click', () => cycleStatus(item, statusBtn));
+
+      card.appendChild(nameEl);
+      card.appendChild(statusBtn);
+      section.appendChild(card);
+    });
+
+    mainEl.appendChild(section);
+  });
+}
+
+async function cycleStatus(item, btn) {
+  const currentIdx = STATUS_CYCLE.indexOf(item.status);
+  const nextStatus = STATUS_CYCLE[(currentIdx + 1) % STATUS_CYCLE.length];
+  const prevStatus = item.status;
+
+  // 楽観的UI更新
+  item.status = nextStatus;
+  btn.textContent = nextStatus;
+  btn.className = 'status-btn status-' + nextStatus + ' updating';
+
+  try {
+    await apiPost({
+      action: 'updateStatus',
+      sheet: currentMemberData.sheetName,
+      row: item.row,
+      col: item.statusCol,
+      value: nextStatus
+    });
+    btn.classList.remove('updating');
+    currentMemberData.progress = recomputeProgress(currentMemberData.items);
+    progressBar.style.width = currentMemberData.progress + '%';
+    progressLabel.textContent = `進捗 ${currentMemberData.progress}%`;
+  } catch (e) {
+    // 失敗時はロールバック
+    item.status = prevStatus;
+    btn.textContent = prevStatus;
+    btn.className = 'status-btn status-' + prevStatus;
+    showToast('更新に失敗しました');
+  }
+}
+
+function recomputeProgress(items) {
+  if (!items.length) return 0;
+  const weight = { '未': 0, '△': 1/3, '〇': 2/3, '◎': 1 };
+  const total = items.reduce((sum, it) => sum + (weight[it.status] || 0), 0);
+  return Math.round((total / items.length) * 100);
+}
+
+async function openPhoto(item) {
+  photoModalBody.innerHTML = '<div class="loading">読み込み中...</div>';
+  photoModal.classList.add('open');
+  try {
+    const { url } = await apiGet({
+      action: 'getPhoto',
+      sheet: currentMemberData.sheetName,
+      row: item.photoRow,
+      col: item.photoCol
+    });
+    if (!url) {
+      photoModalBody.innerHTML = `<div class="empty">「${escapeHtml(item.name)}」の参考写真は登録されていません</div>`;
+      return;
+    }
+    if (/\.(png|jpe?g|gif|webp)(\?|$)/i.test(url)) {
+      photoModalBody.innerHTML = `<img src="${escapeAttr(url)}" alt="${escapeAttr(item.name)}">`;
+    } else {
+      photoModalBody.innerHTML = `<div>「${escapeHtml(item.name)}」の参考資料</div><a href="${escapeAttr(url)}" target="_blank" rel="noopener">資料を開く ↗</a>`;
+    }
+  } catch (e) {
+    photoModalBody.innerHTML = `<div class="error">取得に失敗しました</div>`;
+  }
+}
+
+photoModalClose.addEventListener('click', () => photoModal.classList.remove('open'));
+photoModal.addEventListener('click', (e) => { if (e.target === photoModal) photoModal.classList.remove('open'); });
+
+memberSelect.addEventListener('change', () => loadMember(memberSelect.value));
+refreshBtn.addEventListener('click', () => loadMember(memberSelect.value));
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+}
+function escapeAttr(str) { return escapeHtml(str); }
+
+loadMembers();
+</script>
+</body>
+</html>
